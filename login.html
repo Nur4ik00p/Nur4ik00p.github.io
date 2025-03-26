@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="./logo.png">
+    <link rel="apple-touch-icon" href="./logo.png">
+    <title>Wiki Documentation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="manifest" href="/manifest.json">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --bg-color: #ffffff;
+            --text-color: #1f2937;
+            --sidebar-width: 300px;
+            --code-bg: #f8fafc;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.7;
+            color: var(--text-color);
+            background: var(--bg-color);
+        }
+        
+        .code-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.install-btn {
+    background: var(--primary-color);
+    border: none;
+    border-radius: 0.375rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+}
+
+.install-btn:hover {
+    background: var(--secondary-color);
+}
+
+[data-theme="dark"] .install-btn {
+    background: var(--primary-color);
+}
+
+[data-theme="dark"] .install-btn:hover {
+    background: var(--secondary-color);
+}
+ 
+        /* Темная тема */
+[data-theme="dark"] {
+    --primary-color: #60a5fa;
+    --secondary-color: #3b82f6;
+    --bg-color: #1f2937;
+    --text-color: #f3f4f6;
+    --sidebar-width: 300px;
+    --code-bg: #374151;
+}
+
+/* Кнопка переключения темы */
+.theme-toggle {
+    position: fixed;
+    top: 1rem;
+    right: 4rem;
+    z-index: 100;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+[data-theme="dark"] .sidebar {
+    background: #111827;
+    border-color: #374151;
+}
+
+[data-theme="dark"] .code-block {
+    background: #374151;
+}
+
+[data-theme="dark"] .code-header {
+    background: #4eb4bcf3;
+    border-color: #374151;
+}
+
+[data-theme="dark"] code {
+    color: #e5e7eb;
+}
+
+[data-theme="dark"] .example-section {
+    background: #111827;
+    border-color: #374151;
+}
+
+        /* Боковая панель */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: #f8fafc;
+            border-right: 1px solid #e2e8f0;
+            padding: 2rem;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 50;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .sidebar-logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            cursor: pointer;
+        }
+
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 100;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+        }
+
+        /* Поиск */
+        .search-container {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            padding-left: 2.5rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+        }
+
+        /* Навигация */
+        .nav-list {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 0.5rem 1rem;
+            color: #64748b;
+            text-decoration: none;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .nav-link:hover {
+            background: #e2e8f0;
+            color: var(--primary-color);
+        }
+
+        .nav-link.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* Основной контент */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 2rem;
+            max-width: 1200px;
+            min-height: 100vh;
+        }
+
+        .section {
+            display: none;
+            margin-bottom: 3rem;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--text-color);
+        }
+
+        h2 {
+            font-size: 1.875rem;
+            font-weight: 600;
+            margin: 2rem 0 1rem;
+            color: var(--text-color);
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 1.5rem 0 1rem;
+            color: var(--text-color);
+        }
+
+        p {
+            margin-bottom: 1.5rem;
+            color: #4b5563;
+        }
+
+        /* Блоки кода */
+        .code-block {
+            position: relative;
+            background: var(--code-bg);
+            border-radius: 0.75rem;
+            margin: 1.5rem 0;
+            overflow: hidden;
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background: #d3d3d3;
+            border-bottom: 1px solid #cbd5e1;
+            kground-color 0.3s ease;
+        }
+
+        .code-title {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #fffffff4;
+        }
+
+        .code-content {
+            padding: 1rem;
+            overflow-x: auto;
+        }
+
+        pre {
+            margin: 0;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.875rem;
+            line-height: 1.7;
+        }
+
+        code {
+            color: #334155;
+        }
+
+        .copy-btn {
+            background: white;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.375rem;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .copy-btn:hover {
+            background: #f1f5f9;
+            color: var(--primary-color);
+        }
+
+        .copy-btn i {
+            font-size: 1rem;
+        }
+        
+        /* Индикатор успешного копирования */
+        .copy-success {
+            background-color: #10b981;
+            color: white;
+        }
+
+        /* Примеры кода */
+        .example-section {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 0.75rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .example-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+        
+        /* Навигационные кнопки */
+        .page-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        .nav-button {
+            padding: 0.75rem 1.5rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background-color 0.3s ease;
+        }
+        
+        .nav-button:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .nav-button:disabled {
+            background-color: #cbd5e1;
+            cursor: not-allowed;
+        }
+        
+        /* Хлебные крошки */
+        .breadcrumbs {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+        
+        .breadcrumbs span {
+            margin: 0 0.5rem;
+        }
+        
+        .home-link {
+            color: var(--primary-color);
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 1024px) {
+            :root {
+                --sidebar-width: 250px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                z-index: 50;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            h3 {
+                font-size: 1.25rem;
+            }
+            
+            .page-navigation {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle">
+        <i class="fas fa-moon"></i>
+    </button>
+    <button class="menu-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo" data-page="getting-started">Nur4ik</div>
+        </div>
+
+        <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" class="search-box" placeholder="Поиск документации...">
+        </div>
+
+        <nav>
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a class="nav-link active" data-page="getting-started">Начало работы</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-page="installation">Установка</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-page="configuration">Конфигурация</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-page="api">API</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-page="examples">Примеры</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-page="help">Помощь</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-page="downloaded">Тест</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <main class="main-content">
+        <section class="section active" id="getting-started">
+            <div class="breadcrumbs">
+                <span class="home-link" data-page="getting-started">Главная</span>
+                <span>/</span>
+                <span>Начало работы</span>
+            </div>
+            
+            <h1>Документация</h1>
+            <p>Добро пожаловать в документацию нашего проекта. Здесь вы найдете подробные инструкции по установке, настройке и использованию.</p>
+
+            <h2>Быстрый старт</h2>
+            <p>Для начала работы выполните следующие команды:</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-title">bash</span>
+                    <button class="copy-btn" data-id="code1">
+                        <i class="far fa-copy"></i>
+                        <span>Копировать</span>
+                    </button>
+                </div>
+                <div class="code-content">
+                    <pre><code>git clone https://github.com/username/project.git
+cd project
+npm install
+npm start</code></pre>
+                </div>
+            </div>
+            
+            <div class="page-navigation">
+                <button class="nav-button prev-button" disabled>
+                    <i class="fas fa-arrow-left"></i> Предыдущий
+                </button>
+                <button class="nav-button next-button" data-next="installation">
+                    Следующий <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+
+        <section class="section" id="installation">
+            <div class="breadcrumbs">
+                <span class="home-link" data-page="getting-started">Главная</span>
+                <span>/</span>
+                <span>Установка</span>
+            </div>
+            
+            <h1>Установка</h1>
+            <p>Детальная инструкция по установке проекта. Выберите подходящий способ установки в зависимости от ваших потребностей.</p>
+
+            <h2>Установка через NPM</h2>
+            <p>Рекомендуемый способ установки для большинства проектов:</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-title">npm</span>
+                    <button class="copy-btn" data-id="code2">
+                        <i class="far fa-copy"></i>
+                        <span>Копировать</span>
+                    </button>
+                </div>
+                <div class="code-content">
+                    <pre><code>npm install @project/core
+npm install @project/cli</code></pre>
+                </div>
+            </div>
+            
+            <h2>Установка через Yarn</h2>
+            <p>Альтернативный способ установки:</p>
+            
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-title">yarn</span>
+                    <button class="copy-btn" data-id="code3">
+                        <i class="far fa-copy"></i>
+                        <span>Копировать</span>
+                    </button>
+                </div>
+                <div class="code-content">
+                    <pre><code>yarn add @project/core
+yarn add @project/cli</code></pre>
+                </div>
+            </div>
+            
+            <div class="page-navigation">
+                <button class="nav-button prev-button" data-prev="getting-started">
+                    <i class="fas fa-arrow-left"></i> Предыдущий
+                </button>
+                <button class="nav-button next-button" data-next="configuration">
+                    Следующий <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+        
+        <section class="section" id="configuration">
+            <div class="breadcrumbs">
+                <span class="home-link" data-page="getting-started">Главная</span>
+                <span>/</span>
+                <span>Конфигурация</span>
+            </div>
+            
+            <h1>Конфигурация</h1>
+            <p>Настройка проекта для вашего окружения и требований.</p>
+            
+            <h2>Базовая конфигурация</h2>
+            <p>Создайте файл конфигурации в корне вашего проекта:</p>
+            
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-title">config.js</span>
+                    <button class="copy-btn" data-id="code4">
+                        <i class="far fa-copy"></i>
+                        <span>Копировать</span>
+                    </button>
+                </div>
+                <div class="code-content">
+                    <pre><code>module.exports = {
+  apiKey: 'YOUR_API_KEY',
+  environment: 'development',
+  debug: true,
+  timeout: 30000,
+  endpoints: {
+    main: 'https://api.example.com/v1',
+    backup: 'https://backup-api.example.com/v1'
+  }
+};</code></pre>
+                </div>
+            </div>
+
+            <div class="page-navigation">
+                <button class="nav-button prev-button" data-prev="installation">
+                    <i class="fas fa-arrow-left"></i> Предыдущий
+                </button>
+                <button class="nav-button next-button" data-next="api">
+                    Следующий <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+        
+        <section class="section" id="api">
+            <div class="breadcrumbs">
+                <span class="home-link" data-page="getting-started">Главная</span>
+                <span>/</span>
+                <span>API</span>
+            </div>
+            
+            <h1>API Документация</h1>
+            <p>Полное описание доступных API методов и их параметров.</p>
+            
+            <h2>Основные методы</h2>
+            <p>Список основных методов для работы с нашим API:</p>
+            
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-title">javascript</span>
+                    <button class="copy-btn" data-id="code5">
+                        <i class="far fa-copy"></i>
+                        <span>Копировать</span>
+                    </button>
+                </div>
+                <div class="code-content">
+                    <pre><code>// Инициализация клиента
+const client = new API.Client(apiKey);
+
+// Получение данных
+const data = await client.getData(params);
+
+// Отправка данных
+const response = await client.sendData(payload);
+
+// Обновление ресурса
+const updated = await client.updateResource(id, changes);
+
+// Удаление ресурса
+const result = await client.deleteResource(id);</code></pre>
+                </div>
+            </div>
+
+            <div class="page-navigation">
+                <button class="nav-button prev-button" data-prev="configuration">
+                    <i class="fas fa-arrow-left"></i> Предыдущий
+                </button>
+                <button class="nav-button next-button" data-next="examples">
+                    Следующий <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+
+        <section class="section" id="examples">
+            <div class="breadcrumbs">
+                <span class="home-link" data-page="getting-started">Главная</span>
+                <span>/</span>
+                <span>Примеры</span>
+            </div>
+            
+            <h1>Примеры использования</h1>
+            <p>Ниже приведены практические примеры использования нашего API в различных сценариях.</p>
+
+            <div class="example-section">
+                <h3 class="example-title">Пример 1: Базовое использование</h3>
+                <p>Простой пример инициализации и использования основных функций:</p>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-title">javascript</span>
+                        <button class="copy-btn" data-id="example1">
+                            <i class="far fa-copy"></i>
+                            <span>Копировать</span>
+                        </button>
+                    </div>
+                    <div class="code-content">
+                        <pre><code>import { init } from '@project/core';
+
+// Инициализация с базовыми настройками
+const app = init({
+  apiKey: 'your-api-key',
+  debug: true
+});
+
+// Использование API
+app.getData()
+  .then(result => console.log(result))
+  .catch(error => console.error(error));</code></pre>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="example-section">
+                <h3 class="example-title">Пример 2: Работа с асинхронными функциями</h3>
+                <p>Пример использования асинхронных функций для обработки данных:</p>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-title">javascript</span>
+                        <button class="copy-btn" data-id="example2">
+                            <i class="far fa-copy"></i>
+                            <span>Копировать</span>
+                        </button>
+                    </div>
+                    <div class="code-content">
+                        <pre><code>import { init, processData } from '@project/core';
+
+async function main() {
+  // Инициализация приложения
+  const app = init({
+    apiKey: 'your-api-key',
+    debug: false
+  });
+  
+  try {
+    // Получение данных
+    const rawData = await app.getData();
+    
+    // Обработка данных
+    const processedData = await processData(rawData, {
+      filter: true,
+      normalize: true
+    });
+    
+    // Отправка результатов
+    await app.sendResults(processedData);
+    console.log('Обработка завершена успешно');
+  } catch (error) {
+    console.error('Произошла ошибка:', error);
+  }
+}
+
+main();</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="page-navigation">
+                <button class="nav-button prev-button" data-prev="api">
+                    <i class="fas fa-arrow-left"></i> Предыдущий
+                </button>
+                <button class="nav-button next-button" data-next="help">
+                    Следующий <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+        
+    <section class="section" id="help">
+            <div class="breadcrumbs">
+                <span class="home-link" data-page="getting-started">Главная</span>
+                <span>/</span>
+                <span>Помощь</span>
+            </div>
+            
+            <h1>Помощь</h1>
+            <p>Детальная инструкция по установке проекта. Выберите подходящий способ установки в зависимости от ваших потребностей.</p>
+
+            <h2>Установка через NPM</h2>
+            <p>Рекомендуемый способ установки для большинства проектов:</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-title">npm</span>
+                    <button class="copy-btn" data-id="code2">
+                        <i class="far fa-copy"></i>
+                        <span>Копировать</span>
+                    </button>
+                </div>
+                <div class="code-content">
+                    <pre><code>npm install @project/core
+npm install</code></pre>
+                </div>
+            </div>
+            
+            <h2>Установка через Yarn</h2>
+            <p>Альтернативный способ установки:</p>
+            
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-title">yarn</span>
+                    <button class="copy-btn" data-id="code3">
+                        <i class="far fa-copy"></i>
+                        <span>Копировать</span>
+                    </button>
+                </div>
+                <div class="code-content">
+                    <pre><code>yarn add @project/core
+yarn add @project/cli</code></pre>
+                </div>
+            </div>
+            
+            <div class="page-navigation">
+                <button class="nav-button prev-button" data-prev="examples">
+                    <i class="fas fa-arrow-left"></i> Предыдущий
+                </button>
+                <button class="nav-button next-button" data-next="downloaded">
+                    Следующий <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+        
+    <section class="section" id="downloaded">
+    <div class="breadcrumbs">
+        <span class="home-link" data-page="getting-started">Главная</span>
+        <span>/</span>
+        <span>Тест</span>
+    </div>
+    
+    <h1>Тест</h1>
+    <p>Детальная инструкция по установке проекта. Выберите подходящий способ установки в зависимости от ваших потребностей.</p>
+
+    <h2>Установка через NPM</h2>
+    <p>Рекомендуемый способ установки для большинства проектов:</p>
+
+    <div class="code-block">
+        <div class="code-header">
+            <span class="code-title">npm</span>
+            <div class="code-actions">
+                <button class="copy-btn" data-id="code2">
+                    <i class="far fa-copy"></i>
+                    <span>Копировать</span>
+                </button>
+            </div>
+        </div>
+        <div class="code-content">
+            <pre><code>npm install @project/core
+npm install</code></pre>
+        </div>
+    </div>
+    
+    <h2>Установка через Yarn</h2>
+    <p>Альтернативный способ установки:</p>
+<a href="./script.js" download class="install-btn">
+    <i class="fas fa-download"></i>
+    <span>Установить</span>
+</a>
+
+    <p>или из кода:</p>
+    
+    <div class="code-block">
+        <div class="code-header">
+            <span class="code-title">yarn</span>
+            <div class="code-actions">
+                <button class="copy-btn" data-id="code3">
+                    <i class="far fa-copy"></i>
+                    <span>Копировать</span>
+                </button>
+            </div>
+        </div>
+        <div class="code-content">
+            <pre><code>yarn add @project/core
+yarn add @project/cli</code></pre>
+        </div>
+    </div>
+    
+    <div class="page-navigation">
+        <button class="nav-button prev-button" data-prev="help">
+            <i class="fas fa-arrow-left"></i> Предыдущий
+        </button>
+        <button class="nav-button next-button" disabled>
+            Следующий <i class="fas fa-arrow-right"></i>
+        </button>
+    </div>
+</section>
+    </main>
+
+    <script>
+        // Получаем все элементы, которые будем использовать
+        const menuToggle = document.querySelector('.menu-toggle');
+        const sidebar = document.querySelector('.sidebar');
+        const navLinks = document.querySelectorAll('.nav-link');
+        const sections = document.querySelectorAll('.section');
+        const prevButtons = document.querySelectorAll('.prev-button');
+        const nextButtons = document.querySelectorAll('.next-button');
+        const homeLinks = document.querySelectorAll('.home-link');
+        const sidebarLogo = document.querySelector('.sidebar-logo');
+        const themeToggle = document.querySelector('.theme-toggle');
+const themeIcon = themeToggle.querySelector('i');
+
+themeToggle.addEventListener('click', () => {
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    
+    document.documentElement.setAttribute('data-theme', newTheme);
+    themeIcon.className = newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+    
+    // Сохраняем выбор темы
+    localStorage.setItem('theme', newTheme);
+});
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js')
+      .then(() => console.log("Service Worker зарегистрирован"));
+  } 
+   
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js')
+      .then(() => console.log("Service Worker зарегистрирован"))
+      .catch(error => console.log("Ошибка Service Worker:", error));
+  }
+
+// Проверяем сохраненную тему при загрузке
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme) {
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    themeIcon.className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+}
+        // Функция для переключения страниц
+        function showPage(pageId) {
+            // Скрываем все разделы
+            sections.forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Показываем нужный раздел
+            const currentSection = document.getElementById(pageId);
+            if (currentSection) {
+                currentSection.classList.add('active');
+                
+                // Обновляем активную ссылку в навигации
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('data-page') === pageId) {
+                        link.classList.add('active');
+                    }
+                });
+                
+                // Скролл вверх страницы при смене раздела
+                window.scrollTo(0, 0);
+                
+                // Если на мобильном устройстве, закрываем меню
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.remove('active');
+                }
+                
+                // Обновляем URL (для истории браузера)
+                history.pushState({page: pageId}, pageId, `#${pageId}`);
+            }
+        }
+        
+        // Обработка клика по ссылкам навигации
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                const pageId = link.getAttribute('data-page');
+                showPage(pageId);
+            });
+        });
+        
+        // Обработка клика по логотипу (возврат на главную)
+        sidebarLogo.addEventListener('click', () => {
+            showPage('getting-started');
+        });
+        
+        // Обработка клика по ссылкам "Главная" в хлебных крошках
+        homeLinks.forEach(homeLink => {
+            homeLink.addEventListener('click', () => {
+                const pageId = homeLink.getAttribute('data-page');
+                showPage(pageId);
+            });
+        });
+        
+        // Обработка клика по кнопкам навигации "Предыдущий" и "Следующий"
+        prevButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                if (!button.disabled) {
+                    const prevPage = button.getAttribute('data-prev');
+                    showPage(prevPage);
+                }
+            });
+        });
+        
+        nextButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                if (!button.disabled) {
+                    const nextPage = button.getAttribute('data-next');
+                    showPage(nextPage);
+                }
+            });
+        });
+        
+        // Переключение мобильного меню
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+        });
+       
+
+        // Копирование кода
+        document.querySelectorAll('.copy-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const codeBlock = this.closest('.code-block');
+                const code = codeBlock.querySelector('code').textContent;
+                
+                // Копируем текст в буфер обмена
+                navigator.clipboard.writeText(code)
+                    .then(() => {
+                        // Изменяем вид кнопки
+                        const btnText = this.querySelector('span');
+                        const btnIcon = this.querySelector('i');
+                        const originalText = btnText.textContent;
+                        const originalClass = btnIcon.className;
+                        
+                        // Меняем текст и иконку
+                        btnText.textContent = 'Скопировано!';
+                        btnIcon.className = 'fas fa-check';
+                        this.classList.add('copy-success');
+                        
+                        // Возвращаем исходный вид через 2 секунды
+                        setTimeout(() => {
+                            btnText.textContent = originalText;
+                            btnIcon.className = originalClass;
+                            this.classList.remove('copy-success');
+                        }, 2000);
+                    })
+                    .catch(err => {
+                        console.error('Ошибка при копировании текста: ', err);
+                        alert('Не удалось скопировать текст. Пожалуйста, попробуйте еще раз.');
+                    });
+            });
+        });
+
+        // Поиск по навигации
+        const searchBox = document.querySelector('.search-box');
+        const navItems = document.querySelectorAll('.nav-item');
+
+        searchBox.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            
+            navItems.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                item.style.display = text.includes(searchTerm) ? 'block' : 'none';
+            });
+        });
+
+        // Закрытие мобильного меню при клике вне его
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768 && 
+                !sidebar.contains(e.target) && 
+                !menuToggle.contains(e.target)) {
+                sidebar.classList.remove('active');
+            }
+        });
+        
+        // Проверка хэша URL при загрузке страницы
+        window.addEventListener('load', () => {
+            const hash = window.location.hash.substring(1);
+            if (hash && document.getElementById(hash)) {
+                showPage(hash);
+            }
+        });
+        
+        // Обработка событий истории браузера (кнопки вперед/назад)
+        window.addEventListener('popstate', (event) => {
+            if (event.state && event.state.page) {
+                showPage(event.state.page);
+            } else {
+                showPage('getting-started');
+            }
+        });
+    </script>
+</body>
+</html>
